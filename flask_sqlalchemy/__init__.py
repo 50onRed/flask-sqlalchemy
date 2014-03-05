@@ -135,8 +135,13 @@ class _SignallingSession(Session):
     def __init__(self, db, autocommit=False, autoflush=False, **options):
         self.app = db.get_app()
         self._model_changes = {}
+
+        bind = options.pop('bind', None) or db.engine
+        if isinstance(bind, str):
+            bind = db.get_engine(self.app, bind)
+
         Session.__init__(self, autocommit=autocommit, autoflush=autoflush,
-                         bind=db.engine,
+                         bind=bind,
                          binds=db.get_binds(self.app), **options)
 
     def get_bind(self, mapper, clause=None):
